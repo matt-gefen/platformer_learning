@@ -16,6 +16,7 @@ public partial class player : CharacterBody2D
 	private bool isDashing = false;
 	private float dashTimer = 0.2f;
 	private float dashTimerReset = 0.2f;
+	private bool isDashAvailable = false;
 
     public override void _Ready()
     {
@@ -46,7 +47,6 @@ public partial class player : CharacterBody2D
 			{
 				anim.Play("pre_jump");
 				velocity.Y = JumpVelocity;
-				
 			}
 
 		// handle movement direction
@@ -77,15 +77,19 @@ public partial class player : CharacterBody2D
 			}
 		}
 	// dash handling
-		if (Input.IsActionJustPressed("dash")) {
+		if(IsOnFloor()) {
+			isDashAvailable = true;
+		}
+		if (Input.IsActionJustPressed("dash") && isDashAvailable==true) {
 			isDashing = true;
 			anim.Play("dash");
+			
 			// dashng from still
-			// if(sprite.FlipH == false) {
-			// 	velocity.X = DashVelocity;
-			// } else {
-			// 	velocity.X = -DashVelocity;
-			// }
+			if(velocity.X <= 50 && sprite.FlipH == false) {
+				velocity.X = DashVelocity;
+			} else if (velocity.X <= 50 && sprite.FlipH == true) {
+				velocity.X = -DashVelocity;
+			}
 
 			if(Input.IsActionPressed("ui_right")) {
 				velocity.X = DashVelocity;
@@ -115,12 +119,8 @@ public partial class player : CharacterBody2D
 				velocity.Y = DashVelocity;
 				velocity.X = DashVelocity;
 			}
-
-			if (direction != 0)
-			{
-				velocity.X = direction * DashVelocity;
-			}
 			dashTimer = dashTimerReset;
+			isDashAvailable = false;
 		}
 		
 		if(isDashing) {
